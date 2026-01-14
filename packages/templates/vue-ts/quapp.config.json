@@ -1,0 +1,12 @@
+{
+  "server": {
+    "qr": true,
+    "network": "private",
+    "port": 5173,
+    "fallbackPort": false,
+    "https": false,
+    "openBrowser": true,
+    "autoRetry": true,
+    "strictPort": false
+  }
+}
