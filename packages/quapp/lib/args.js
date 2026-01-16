@@ -104,6 +104,37 @@ export function getHelpText() {
 }
 
 /**
+ * Validate command-specific flags
+ * @param {Object} args - Parsed arguments
+ */
+function validateCommandFlags(args) {
+  if (!args.command) return;
+
+  // Check serve-specific flags
+  if (args.command !== 'serve') {
+    if (args.port !== null) args.errors.push(`Flag "--port" is only valid for "serve" command`);
+    if (args.host !== null) args.errors.push(`Flag "--host" is only valid for "serve" command`);
+    if (args.qr === false) args.errors.push(`Flag "--no-qr" is only valid for "serve" command`);
+    if (args.open === true) args.errors.push(`Flag "--open" is only valid for "serve" command`);
+    if (args.https === true) args.errors.push(`Flag "--https" is only valid for "serve" command`);
+  }
+
+  // Check build-specific flags
+  if (args.command !== 'build') {
+    if (args.output !== null) args.errors.push(`Flag "--output" is only valid for "build" command`);
+    if (args.clean === false) args.errors.push(`Flag "--no-clean" is only valid for "build" command`);
+    if (args.skipPrompts === true) args.errors.push(`Flag "--skip-prompts" is only valid for "build" command`);
+  }
+
+  // Check init-specific flags
+  if (args.command !== 'init') {
+    if (args.yes === true) args.errors.push(`Flag "--yes" is only valid for "init" command`);
+    if (args.force === true) args.errors.push(`Flag "--force" is only valid for "init" command`);
+    if (args.dryRun === true) args.errors.push(`Flag "--dry-run" is only valid for "init" command`);
+  }
+}
+
+/**
  * Parse command line arguments
  * @param {string[]} argv
  * @returns {Object}
@@ -191,7 +222,13 @@ export function parseArgs(argv) {
 
     // Port
     if (arg === '-p' || arg === '--port') {
-      const value = argv[++i];
+      const value = argv[i + 1];
+      if (!value || value.startsWith('-')) {
+        args.errors.push(`Flag "--port" requires a value`);
+        i++;
+        continue;
+      }
+      i++; // Move past the flag to the value
       const port = parseInt(value, 10);
       if (isNaN(port) || port < 1 || port > 65535) {
         args.errors.push(`Invalid port: "${value}". Must be 1-65535`);
@@ -204,7 +241,14 @@ export function parseArgs(argv) {
 
     // Host
     if (arg === '--host') {
-      args.host = argv[++i];
+      const value = argv[i + 1];
+      if (!value || value.startsWith('-')) {
+        args.errors.push(`Flag "--host" requires a value`);
+        i++;
+        continue;
+      }
+      i++; // Move past the flag to the value
+      args.host = value;
       i++;
       continue;
     }
@@ -232,7 +276,14 @@ export function parseArgs(argv) {
 
     // Output file
     if (arg === '-o' || arg === '--output') {
-      args.output = argv[++i];
+      const value = argv[i + 1];
+      if (!value || value.startsWith('-')) {
+        args.errors.push(`Flag "--output" requires a value`);
+        i++;
+        continue;
+      }
+      i++; // Move past the flag to the value
+      args.output = value;
       i++;
       continue;
     }
@@ -274,16 +325,27 @@ export function parseArgs(argv) {
 
     // Unknown flag
     if (arg.startsWith('-')) {
-      // Could be a Vite flag, pass it through
-      args.extra.push(arg);
+      // Check if it's a known invalid flag for current command
+      if (args.command) {
+        args.errors.push(`Unknown flag: "${arg}". Run "quapp ${args.command} --help" for available options`);
+      } else {
+        args.errors.push(`Unknown flag: "${arg}". Run "quapp --help" for available commands`);
+      }
       i++;
       continue;
     }
 
     // Unknown positional
-    args.extra.push(arg);
+    if (args.command) {
+      args.errors.push(`Unexpected argument: "${arg}". Run "quapp ${args.command} --help" for usage`);
+    } else {
+      args.errors.push(`Unknown command: "${arg}". Run "quapp --help" for available commands`);
+    }
     i++;
   }
+
+  // Validate command-specific flags
+  validateCommandFlags(args);
 
   return args;
 }

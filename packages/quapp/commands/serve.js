@@ -4,8 +4,6 @@
 
 import { spawn } from 'child_process';
 import os from 'os';
-import path from 'path';
-import { existsSync } from 'fs';
 import * as logger from '../lib/logger.js';
 import { loadConfig, checkViteAvailable } from '../lib/config.js';
 import { EXIT_CODES } from '../lib/constants.js';
@@ -27,27 +25,6 @@ function getIP(networkType = 'private') {
     }
   }
   return 'localhost';
-}
-
-/**
- * Wait for Vite to be ready by parsing stdout
- * @param {string} output - Stdout content
- * @returns {Object|null} Server info if ready
- */
-function parseViteReady(output) {
-  // Vite outputs lines like:
-  // "Local:   http://localhost:5173/"
-  // "Network: http://192.168.1.100:5173/"
-  const localMatch = output.match(/Local:\s+(https?:\/\/[^\s]+)/);
-  const networkMatch = output.match(/Network:\s+(https?:\/\/[^\s]+)/);
-  
-  if (localMatch || networkMatch) {
-    return {
-      local: localMatch?.[1]?.replace(/\/$/, ''),
-      network: networkMatch?.[1]?.replace(/\/$/, ''),
-    };
-  }
-  return null;
 }
 
 /**
@@ -113,49 +90,58 @@ export async function runServe(options = {}) {
     shell: true,
   });
 
-  let serverInfo = null;
   let qrShown = false;
 
-  // Handle stdout
-  viteProcess.stdout.on('data', (data) => {
-    const output = data.toString();
-    process.stdout.write(output);
+  // Build URLs - LAN URL for QR code, localhost for browser
+  const protocol = serverConfig.https ? 'https' : 'http';
+  const lanUrl = `${protocol}://${serverConfig.host}:${serverConfig.port}`;
+  const localUrl = `${protocol}://localhost:${serverConfig.port}`;
 
-    // Check if Vite is ready
-    if (!serverInfo) {
-      serverInfo = parseViteReady(output);
-      
-      if (serverInfo && !qrShown) {
-        qrShown = true;
-        
-        // Show QR code after Vite output
-        setTimeout(async () => {
-          const url = serverInfo.network || serverInfo.local;
-          
-          if (serverConfig.qr && url) {
-            try {
-              const qrcode = await import('qrcode-terminal');
-              logger.newline();
-              logger.step('📱', 'Scan QR code to open on mobile:');
-              logger.newline();
-              qrcode.default.generate(url, { small: true });
-            } catch {
-              // qrcode-terminal not available, skip
-            }
-          }
-
-          // Open browser if requested
-          if (serverConfig.openBrowser && serverInfo.local) {
-            try {
-              const open = await import('open');
-              await open.default(serverInfo.local);
-            } catch {
-              // open not available, skip
-            }
-          }
-        }, 100);
+  // Function to show QR code and open browser
+  const showQRAndOpenBrowser = async () => {
+    if (qrShown) return;
+    qrShown = true;
+    
+    // Show access URLs
+    logger.newline();
+    console.log('  \x1b[1m\x1b[32m✓\x1b[0m \x1b[1mServer running!\x1b[0m');
+    logger.newline();
+    console.log(`  \x1b[36m➜\x1b[0m  \x1b[1mLocal:\x1b[0m   ${localUrl}`);
+    console.log(`  \x1b[36m➜\x1b[0m  \x1b[1mNetwork:\x1b[0m ${lanUrl}`);
+    
+    // Show QR code for mobile access
+    if (serverConfig.qr) {
+      try {
+        const qrcode = await import('qrcode-terminal');
+        logger.newline();
+        console.log('  \x1b[90m📱 Scan to open on mobile:\x1b[0m');
+        logger.newline();
+        qrcode.default.generate(lanUrl, { small: true });
+      } catch (err) {
+        // qrcode-terminal not available, skip
+        logger.debug(`QR code generation failed: ${err.message}`);
       }
     }
+    
+    logger.newline();
+
+    // Open browser if requested - use localhost for local browser access
+    if (serverConfig.openBrowser) {
+      try {
+        const open = await import('open');
+        await open.default(localUrl);
+      } catch (err) {
+        logger.debug(`Failed to open browser: ${err.message}`);
+      }
+    }
+  };
+
+  // Show QR code after Vite has had time to start (simple and reliable)
+  setTimeout(showQRAndOpenBrowser, 1500);
+
+  // Handle stdout - just pass through to console
+  viteProcess.stdout.on('data', (data) => {
+    process.stdout.write(data);
   });
 
   // Handle stderr
@@ -185,7 +171,8 @@ export async function runServe(options = {}) {
       } else {
         resolve({
           success: true,
-          serverInfo,
+          lanUrl,
+          localUrl,
         });
       }
     });

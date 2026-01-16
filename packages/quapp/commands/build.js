@@ -188,7 +188,11 @@ export async function runBuild(options = {}) {
 
   // Paths
   const distDir = path.join(cwd, config.build.outDir);
-  const outputFile = options.output || config.build.outputFile;
+  let outputFile = options.output || config.build.outputFile;
+  // Ensure .qpp extension
+  if (!outputFile.endsWith('.qpp')) {
+    outputFile = `${outputFile}.qpp`;
+  }
   const outputPath = path.join(cwd, outputFile);
 
   // Step 1: Run build
