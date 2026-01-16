@@ -106,7 +106,7 @@ export async function runServe(options = {}) {
     logger.newline();
     console.log('  \x1b[1m\x1b[32m✓\x1b[0m \x1b[1mServer running!\x1b[0m');
     logger.newline();
-    console.log(`  \x1b[36m➜\x1b[0m  \x1b[1mLocal:\x1b[0m   ${localUrl}`);
+    // console.log(`  \x1b[36m➜\x1b[0m  \x1b[1mLocal:\x1b[0m   ${localUrl}`);
     console.log(`  \x1b[36m➜\x1b[0m  \x1b[1mNetwork:\x1b[0m ${lanUrl}`);
     
     // Show QR code for mobile access
@@ -129,7 +129,7 @@ export async function runServe(options = {}) {
     if (serverConfig.openBrowser) {
       try {
         const open = await import('open');
-        await open.default(localUrl);
+        await open.default(lanUrl);
       } catch (err) {
         logger.debug(`Failed to open browser: ${err.message}`);
       }
