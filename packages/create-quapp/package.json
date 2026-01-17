@@ -1,6 +1,6 @@
 {
   "name": "create-quapp",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "Scaffold a new Quapp project with your choice of framework (React, Vue, Solid, Vanilla)",
   "type": "module",
   "bin": {
@@ -11,13 +11,13 @@
   },
   "author": "Quapp",
   "license": "MIT",
-  "homepage": "https://github.com/Quapp-Store/Quapp#readme",
+  "homepage": "https://github.com/Quapp-Store/quapp-cli/tree/master/packages/create-quapp#readme",
   "bugs": {
-    "url": "https://github.com/Quapp-Store/Quapp/issues"
+    "url": "https://github.com/Quapp-Store/quapp-cli/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Quapp-Store/Quapp.git",
+    "url": "https://github.com/Quapp-Store/quapp-cli/tree/master/packages/create-quapp",
     "directory": "packages/create-quapp"
   },
   "keywords": [

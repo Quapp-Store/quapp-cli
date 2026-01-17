@@ -41,4 +41,4 @@ export const DEFAULTS = {
 };
 
 // Template repository base path
-export const TEMPLATE_REPO = 'Quapp-Store/Quapp/packages/templates';
+export const TEMPLATE_REPO = 'Quapp-Store/quapp-cli/packages/templates';
