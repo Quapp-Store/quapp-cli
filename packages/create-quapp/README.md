@@ -1,166 +1,101 @@
 # create-quapp
 
-Scaffold a new Quapp project with your choice of framework.
-
-## Quick Start
-
-```bash
-# Interactive mode
-npm create quapp
-
-# With project name
-npm create quapp my-app
-
-# Full automation (AI-friendly)
-npm create quapp my-app -t react-ts -a "Author Name" -d "My app description" --git --install --yes
-
-# Preview without creating (dry run)
-npm create quapp my-app -t react-ts --dry-run
-```
+Scaffolding tool for Quapp projects.
 
 ## Usage
 
 ```bash
-npm create quapp [project-name] [options]
-npx create-quapp [project-name] [options]
+npm create quapp@latest
 ```
+
+```bash
+yarn create quapp
+```
+
+```bash
+pnpm create quapp
+```
+
+```bash
+bun create quapp
+```
+
+Then follow the prompts.
+
+You can also specify the project name and template directly:
+
+```bash
+npm create quapp@latest my-app -- --template react
+```
+
+## Templates
+
+| JavaScript | TypeScript |
+|------------|------------|
+| `vanilla-js` | `vanilla-ts` |
+| `react` | `react-ts` |
+| `react+swc` | `react-ts+swc` |
+| `vue` | `vue-ts` |
+| `solid-js` | `solid-ts` |
 
 ## Options
 
-| Flag | Short | Description |
-|------|-------|-------------|
-| `--template <name>` | `-t` | Template to use (see below) |
-| `--author <name>` | `-a` | Author name (for package.json) |
-| `--description <text>` | `-d` | Project description |
-| `--force` | `-f` | Overwrite existing directory |
-| `--git` | `-g` | Initialize git repository |
-| `--install` | `-i` | Install dependencies |
-| `--yes` | `-y` | Skip prompts, use defaults |
-| `--dry-run` | | Preview what would be created (no changes) |
-| `--no-git` | | Skip git initialization |
-| `--no-install` | | Skip dependency installation |
-| `--pm <manager>` | | Package manager (npm, yarn, pnpm, bun) |
-| `--json` | | Output as JSON (for AI/automation) |
-| `--no-color` | | Disable colored output |
-| `--verbose` | | Show detailed logs |
-| `--version` | `-v` | Show version |
-| `--help` | `-h` | Show help |
+| Flag | Description |
+|------|-------------|
+| `-t, --template <name>` | Project template |
+| `-a, --author <name>` | Author name |
+| `-d, --description <text>` | Project description |
+| `-g, --git` | Initialize git repository |
+| `-i, --install` | Install dependencies |
+| `-y, --yes` | Skip prompts, use defaults |
+| `-f, --force` | Overwrite existing directory |
+| `--pm <manager>` | Package manager (npm/yarn/pnpm/bun) |
+| `--dry-run` | Preview without creating |
 
-## Available Templates
+## Scaffolded Project
 
-### React
-- `react` - React with JavaScript
-- `react-ts` - React with TypeScript
-- `react+swc` - React with JavaScript + SWC
-- `react-ts+swc` - React with TypeScript + SWC
+The generated project includes:
 
-### Vue
-- `vue` - Vue with JavaScript
-- `vue-ts` - Vue with TypeScript
+- [quapp](https://www.npmjs.com/package/quapp) dev dependency
+- `npm run dev` — Start dev server with mobile QR code
+- `npm run qbuild` — Build `.qpp` package
+- `quapp.config.json` — Quapp configuration
+- Vite build setup
 
-### Vanilla
-- `vanilla-js` - Vanilla JavaScript
-- `vanilla-ts` - Vanilla TypeScript
-
-### Solid
-- `solid-js` - Solid.js with JavaScript
-- `solid-ts` - Solid.js with TypeScript
-
-## Examples
+## Example
 
 ```bash
-# Interactive mode - prompts for all options
-npm create quapp
-
 # Create React TypeScript project
-npm create quapp my-app -t react-ts
+npm create quapp@latest my-app -- --template react-ts
 
-# Create Vue project with git and dependencies
-npm create quapp my-vue-app -t vue --git --install
-
-# Full automation for CI/CD or AI
-npm create quapp my-app -t react-ts -g -i -y --json
-
-# Use pnpm as package manager
-npx create-quapp my-app -t solid-ts --pm pnpm -y -i
-
-# Overwrite existing directory
-npm create quapp existing-project -t react --force
+cd my-app
+npm install
+npm run dev
 ```
 
-## AI/Automation Usage
+## Automation
 
-For non-interactive environments (CI/CD, AI assistants), use the `--yes` flag with required options:
+For CI/CD or programmatic usage:
 
 ```bash
-# Minimal automation
-npm create quapp my-app --template react --yes
-
-# Full automation with JSON output  
-npm create quapp my-app -t react-ts -a "Dev Name" -d "My project" --git --install --yes --json
-
-# Dry run to preview (validates without creating)
-npm create quapp my-app -t react-ts --dry-run --json
+npm create quapp@latest my-app -- -t react -y --json
 ```
 
-### JSON Output
+JSON output:
 
-Success output:
 ```json
 {
   "success": true,
   "projectName": "my-app",
   "projectPath": "/path/to/my-app",
-  "template": "react-ts",
-  "framework": "react",
-  "author": "Dev Name",
-  "description": "My project",
-  "packageManager": "npm",
-  "gitInitialized": true,
-  "dependenciesInstalled": true,
-  "nextSteps": ["cd my-app", "npm run dev"]
+  "template": "react",
+  "nextSteps": ["cd my-app", "npm install", "npm run dev"]
 }
 ```
 
-Dry run output:
-```json
-{
-  "success": true,
-  "dryRun": true,
-  "wouldCreate": {
-    "projectName": "my-app",
-    "projectPath": "/path/to/my-app",
-    "template": "react-ts",
-    "framework": "react",
-    "author": "Dev Name",
-    "description": "My project",
-    "gitInit": true,
-    "installDeps": true
-  }
-}
-```
+## Related
 
-Error output (includes suggestion for AI to fix):
-```json
-{
-  "success": false,
-  "errorCode": "MISSING_TEMPLATE",
-  "error": "Template is required",
-  "suggestion": "Add template: --template react-ts"
-}
-```
-
-## Exit Codes
-
-| Code | Description |
-|------|-------------|
-| 0 | Success |
-| 1 | General error |
-| 2 | Invalid arguments |
-| 3 | Template not found |
-| 4 | Git error |
-| 5 | Network error |
-| 130 | User cancelled (Ctrl+C) |
+- [quapp](https://www.npmjs.com/package/quapp) — Dev server and build CLI
 
 ## License
 

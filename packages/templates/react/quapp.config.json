@@ -6,8 +6,11 @@
     "fallbackPort": true,
     "https": false,
     "openBrowser": true,
-    "autoRetry": false,
+    "autoRetry": true,
     "strictPort": false
+  },
+  "build": {
+    "outDir": "dist",
+    "outputFile": "dist.qpp"
   }
-  
 }

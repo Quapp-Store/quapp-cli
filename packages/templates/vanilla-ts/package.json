@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "quapp serve",
     "build": "tsc && vite build",
-    "qbuild": "quapp build",
+    "qbuild": "quapp build --skip-prompts",
     "preview": "vite preview"
   },
   "devDependencies": {

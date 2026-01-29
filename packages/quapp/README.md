@@ -1,193 +1,127 @@
 # quapp
 
-Development CLI for Quapp projects - start a dev server with LAN QR code and build `.qpp` packages.
+Dev server and build tool for Quapp projects. Serves your app over LAN with a QR code for mobile testing, and packages production builds as `.qpp` files.
+
+## Quick Start
+
+If you scaffolded with `create-quapp`, run the pre-configured scripts:
+
+```bash
+npm run dev      # Start dev server
+npm run qbuild   # Build .qpp package
+```
 
 ## Installation
+
+For existing Vite projects:
 
 ```bash
 npm install -D quapp
 ```
 
-## Commands
-
-### `quapp init`
-
-Initialize Quapp in an existing project. Creates config and adds scripts.
+Initialize configuration and scripts:
 
 ```bash
-quapp init [options]
+npx quapp init
 ```
 
-**Options:**
-| Flag | Short | Description |
-|------|-------|-------------|
-| `--yes` | `-y` | Skip confirmation prompt |
-| `--force` | `-f` | Overwrite existing config/scripts |
-| `--dry-run` | | Preview changes without applying |
+## Commands
 
 ### `quapp serve`
 
-Start development server with LAN access and QR code for mobile testing.
+Starts Vite dev server with LAN network access and QR code.
 
 ```bash
-quapp serve [options]
+npx quapp serve
 ```
 
-**Options:**
-| Flag | Short | Description |
-|------|-------|-------------|
-| `--port <port>` | `-p` | Port to run on (default: 5173) |
-| `--host <host>` | | Host to bind to |
-| `--open` | | Open browser automatically |
-| `--no-qr` | | Disable QR code display |
-| `--https` | | Enable HTTPS |
+| Flag | Description |
+|------|-------------|
+| `-p, --port <port>` | Server port (default: 5173) |
+| `--host <host>` | Host to bind |
+| `--open` | Open in browser |
+| `--no-qr` | Disable QR code |
+| `--https` | Enable HTTPS |
 
 ### `quapp build`
 
-Build for production and create `.qpp` package.
+Builds for production and creates `.qpp` package.
 
 ```bash
-quapp build [options]
+npx quapp build
 ```
 
-**Options:**
-| Flag | Short | Description |
-|------|-------|-------------|
-| `--output <file>` | `-o` | Output filename (default: dist.qpp) |
-| `--no-clean` | | Keep dist folder after build |
-| `--skip-prompts` | | Skip interactive prompts |
+| Flag | Description |
+|------|-------------|
+| `-o, --output <file>` | Output filename (default: dist.qpp) |
+| `--skip-prompts` | Non-interactive mode |
+| `--no-clean` | Keep dist folder |
 
-## Global Options
+### `quapp init`
 
-| Flag | Short | Description |
-|------|-------|-------------|
-| `--json` | | Output as JSON (for automation/AI) |
-| `--no-color` | | Disable colored output |
-| `--verbose` | | Show detailed logs |
-| `--version` | `-v` | Show version |
-| `--help` | `-h` | Show help |
+Initialize Quapp in an existing Vite project.
+
+```bash
+npx quapp init
+```
+
+| Flag | Description |
+|------|-------------|
+| `-y, --yes` | Skip prompts |
+| `-f, --force` | Overwrite existing config |
+| `--dry-run` | Preview changes |
 
 ## Configuration
 
-Create `quapp.config.json` in your project root:
+`quapp.config.json`:
 
 ```json
 {
   "server": {
     "port": 5173,
     "qr": true,
-    "network": "private",
-    "openBrowser": false,
-    "https": false,
-    "fallbackPort": true,
-    "autoRetry": true,
-    "strictPort": false
+    "openBrowser": false
   },
   "build": {
-    "outDir": "dist",
     "outputFile": "dist.qpp"
   }
 }
 ```
 
-## Examples
+## Global Options
+
+| Flag | Description |
+|------|-------------|
+| `--json` | JSON output for automation |
+| `--verbose` | Detailed logging |
+| `-h, --help` | Show help |
+| `-v, --version` | Show version |
+
+## Automation
+
+For CI/CD or programmatic usage:
 
 ```bash
-# Initialize Quapp in existing project
-quapp init
-
-# Initialize without prompts (AI-friendly)
-quapp init --yes --json
-
-# Start dev server
-quapp serve
-
-# Start on specific port
-quapp serve -p 3000
-
-# Start and open browser
-quapp serve --open
-
-# Build for production
-quapp build
-
-# Build with custom output name
-quapp build -o my-app.qpp
-
-# Build with JSON output (AI-friendly)
-quapp build --json --skip-prompts
+npx quapp build --skip-prompts --json
 ```
 
-## AI/Automation Usage
-
-For non-interactive environments:
-
-```bash
-# Initialize without prompts
-quapp init --yes --json
-
-# Preview init changes
-quapp init --dry-run --json
-
-# Build without prompts
-quapp build --skip-prompts --json
-
-# Build with custom output
-quapp build -o myapp.qpp --skip-prompts --json
-```
-
-### JSON Output Examples
-
-Init success:
-```json
-{
-  "success": true,
-  "changes": ["quapp.config.json", "script:dev", "script:qbuild", "devDependency:quapp"],
-  "nextSteps": ["npm install", "npm run dev"]
-}
-```
-
-Build success:
 ```json
 {
   "success": true,
   "outputFile": "dist.qpp",
-  "outputPath": "/path/to/project/dist.qpp",
-  "manifest": {
-    "package_name": "com.author.myapp",
-    "version": "1.0.0",
-    "version_code": 10000
-  },
-  "duration": 5230
+  "outputPath": "/path/to/dist.qpp",
+  "duration": 1234
 }
 ```
-
-Error (with suggestion for AI):
-```json
-{
-  "success": false,
-  "errorCode": "NO_BUILD_SCRIPT",
-  "error": "No build script",
-  "suggestion": "Add to package.json: \"scripts\": { \"build\": \"vite build\" }"
-}
-```
-
-## Exit Codes
-
-| Code | Description |
-|------|-------------|
-| 0 | Success |
-| 1 | General error |
-| 2 | Invalid arguments |
-| 3 | Build failed |
-| 4 | Configuration error |
-| 5 | Missing dependency |
-| 130 | User cancelled |
 
 ## Requirements
 
-- Node.js >= 18.0.0
-- Vite (in your project's dependencies)
+- Node.js 18+
+- Vite project
+
+## Related
+
+- [create-quapp](https://www.npmjs.com/package/create-quapp) — Project scaffolding
 
 ## License
 

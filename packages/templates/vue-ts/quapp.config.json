@@ -3,10 +3,14 @@
     "qr": true,
     "network": "private",
     "port": 5173,
-    "fallbackPort": false,
+    "fallbackPort": true,
     "https": false,
     "openBrowser": true,
     "autoRetry": true,
     "strictPort": false
+  },
+  "build": {
+    "outDir": "dist",
+    "outputFile": "dist.qpp"
   }
 }

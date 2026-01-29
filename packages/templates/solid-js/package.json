@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "quapp serve",
-    "qbuild": "quapp build",
+    "qbuild": "quapp build --skip-prompts",
     "build": "vite build",
     "preview": "vite preview"
   },
