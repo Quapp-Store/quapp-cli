@@ -164,8 +164,8 @@ export async function runServe(options = {}) {
     logger.newline();
     console.log('  \x1b[1m\x1b[32m✓\x1b[0m \x1b[1mDev server running!\x1b[0m');
     logger.newline();
-    console.log(`  \x1b[36m➜\x1b[0m  \x1b[1mLocal:\x1b[0m   ${localUrl}`);
-    console.log(`  \x1b[36m➜\x1b[0m  \x1b[1mNetwork:\x1b[0m ${lanUrl}`);
+    // console.log(`  \x1b[36m➜\x1b[0m  \x1b[1mLocal:\x1b[0m   ${localUrl}`);
+    // console.log(`  \x1b[36m➜\x1b[0m  \x1b[1mNetwork:\x1b[0m ${lanUrl}`);
     
     // Show QR code for mobile access
     if (serverConfig.qr) {
