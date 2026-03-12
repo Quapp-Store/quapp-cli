@@ -24,6 +24,7 @@ yarn-error.log*
 # Test directories
 test-*/
 full-test/
+Test/
 
 # Lock files in test projects
 ai-test-project/

@@ -71,6 +71,49 @@ npx quapp init
 | `-f, --force` | Overwrite existing config |
 | `--dry-run` | Preview changes |
 
+### `quapp login`
+
+Sign in to your Quapp developer account to enable publishing.
+
+```bash
+npx quapp login
+```
+
+| Flag | Description |
+|------|-------------|
+| `--email <email>` | Account email (skip interactive prompt) |
+| `--password <pass>` | Account password (skip interactive prompt) |
+
+### `quapp logout`
+
+Sign out and remove stored credentials.
+
+```bash
+npx quapp logout
+```
+
+### `quapp whoami`
+
+Show the currently logged-in user information.
+
+```bash
+npx quapp whoami
+```
+
+### `quapp publish`
+
+Upload and publish a `.qpp` file to the Quapp Store.
+
+```bash
+npx quapp publish
+```
+
+| Flag | Description |
+|------|-------------|
+| `--file <path>` | Path to .qpp file (default: ./dist.qpp) |
+| `-n, --notes <text>` | Release notes for this version |
+| `--visibility <vis>` | Visibility: `public`, `unlisted`, or `private` (default: `public`) |
+
 ## Configuration
 
 `quapp.config.json`:
