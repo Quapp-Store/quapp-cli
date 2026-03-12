@@ -38,6 +38,10 @@ export function getHelpText() {
   serve               Start development server with LAN access
   build               Build for production and create .qpp package
   init                Initialize Quapp in an existing project
+  login               Sign in to your Quapp developer account
+  logout              Sign out and remove stored credentials
+  whoami              Show the currently logged-in user
+  publish             Upload and publish a .qpp file to the Quapp Store
 
 \x1b[1mGlobal Options:\x1b[0m
   --no-color          Disable colored output
@@ -63,24 +67,39 @@ export function getHelpText() {
   -f, --force         Overwrite existing config/scripts
   --dry-run           Preview changes without applying
 
+\x1b[1mLogin Options:\x1b[0m
+  --email <email>     Account email (skip interactive prompt)
+  --password <pass>   Account password (skip interactive prompt)
+
+\x1b[1mPublish Options:\x1b[0m
+  --file <path>       Path to .qpp file (default: ./dist.qpp)
+  -n, --notes <text>  Release notes
+  --visibility <vis>  Visibility: public, unlisted, or private (default: public)
+
 \x1b[1mExamples:\x1b[0m
-  \x1b[36m# Initialize Quapp in existing project\x1b[0m
-  quapp init
-
-  \x1b[36m# Initialize without prompts (AI-friendly)\x1b[0m
-  quapp init --yes --json
-
   \x1b[36m# Start dev server\x1b[0m
   quapp serve
-
-  \x1b[36m# Start on specific port\x1b[0m
-  quapp serve --port 3000
 
   \x1b[36m# Build for production\x1b[0m
   quapp build
 
-  \x1b[36m# Build to custom output (AI-friendly)\x1b[0m
-  quapp build -o myapp.qpp --json --skip-prompts
+  \x1b[36m# Sign in interactively\x1b[0m
+  quapp login
+
+  \x1b[36m# Sign in non-interactively (AI-friendly)\x1b[0m
+  quapp login --email dev@example.com --password mypass123
+
+  \x1b[36m# Check who is logged in\x1b[0m
+  quapp whoami
+
+  \x1b[36m# Build and publish\x1b[0m
+  quapp build && quapp publish
+
+  \x1b[36m# Publish a specific file with release notes\x1b[0m
+  quapp publish --file ./myapp.qpp --notes "Bug fixes" --visibility unlisted
+
+  \x1b[36m# Full automation (AI-friendly)\x1b[0m
+  quapp publish --file dist.qpp --json
 
 \x1b[1mConfiguration:\x1b[0m
   Create quapp.config.json in your project root to customize defaults:
@@ -132,6 +151,19 @@ function validateCommandFlags(args) {
     if (args.force === true) args.errors.push(`Flag "--force" is only valid for "init" command`);
     if (args.dryRun === true) args.errors.push(`Flag "--dry-run" is only valid for "init" command`);
   }
+
+  // Check login-specific flags
+  if (args.command !== 'login') {
+    if (args.email !== null) args.errors.push(`Flag "--email" is only valid for "login" command`);
+    if (args.password !== null) args.errors.push(`Flag "--password" is only valid for "login" command`);
+  }
+
+  // Check publish-specific flags
+  if (args.command !== 'publish') {
+    if (args.file !== null) args.errors.push(`Flag "--file" is only valid for "publish" command`);
+    if (args.notes !== null) args.errors.push(`Flag "--notes" is only valid for "publish" command`);
+    if (args.visibility !== null) args.errors.push(`Flag "--visibility" is only valid for "publish" command`);
+  }
 }
 
 /**
@@ -140,6 +172,8 @@ function validateCommandFlags(args) {
  * @returns {Object}
  */
 export function parseArgs(argv) {
+  const KNOWN_COMMANDS = ['serve', 'build', 'init', 'login', 'logout', 'whoami', 'publish'];
+
   const args = {
     command: null,
     
@@ -167,6 +201,15 @@ export function parseArgs(argv) {
     force: false,
     dryRun: false,
     
+    // Login options
+    email: null,
+    password: null,
+    
+    // Publish options
+    file: null,
+    notes: null,
+    visibility: null,
+    
     // Extra args to forward
     extra: [],
     
@@ -179,7 +222,7 @@ export function parseArgs(argv) {
     const arg = argv[i];
 
     // Commands
-    if (!args.command && (arg === 'serve' || arg === 'build' || arg === 'init')) {
+    if (!args.command && KNOWN_COMMANDS.includes(arg)) {
       args.command = arg;
       i++;
       continue;
@@ -319,6 +362,81 @@ export function parseArgs(argv) {
     // Dry run
     if (arg === '--dry-run') {
       args.dryRun = true;
+      i++;
+      continue;
+    }
+
+    // Email (login)
+    if (arg === '--email') {
+      const value = argv[i + 1];
+      if (!value || value.startsWith('-')) {
+        args.errors.push('Flag "--email" requires a value');
+        i++;
+        continue;
+      }
+      i++;
+      args.email = value;
+      i++;
+      continue;
+    }
+
+    // Password (login)
+    if (arg === '--password') {
+      const value = argv[i + 1];
+      if (!value || value.startsWith('-')) {
+        args.errors.push('Flag "--password" requires a value');
+        i++;
+        continue;
+      }
+      i++;
+      args.password = value;
+      i++;
+      continue;
+    }
+
+    // File (publish)
+    if (arg === '--file') {
+      const value = argv[i + 1];
+      if (!value || value.startsWith('-')) {
+        args.errors.push('Flag "--file" requires a value');
+        i++;
+        continue;
+      }
+      i++;
+      args.file = value;
+      i++;
+      continue;
+    }
+
+    // Notes (publish)
+    if (arg === '-n' || arg === '--notes') {
+      const value = argv[i + 1];
+      if (!value || value.startsWith('-')) {
+        args.errors.push('Flag "--notes" requires a value');
+        i++;
+        continue;
+      }
+      i++;
+      args.notes = value;
+      i++;
+      continue;
+    }
+
+    // Visibility (publish)
+    if (arg === '--visibility') {
+      const value = argv[i + 1];
+      if (!value || value.startsWith('-')) {
+        args.errors.push('Flag "--visibility" requires a value');
+        i++;
+        continue;
+      }
+      i++;
+      const valid = ['public', 'unlisted', 'private'];
+      if (!valid.includes(value)) {
+        args.errors.push(`Invalid visibility: "${value}". Must be: ${valid.join(', ')}`);
+      } else {
+        args.visibility = value;
+      }
       i++;
       continue;
     }

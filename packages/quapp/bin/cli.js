@@ -15,6 +15,10 @@ import { EXIT_CODES } from '../lib/constants.js';
 import { runServe } from '../commands/serve.js';
 import { runBuild } from '../commands/build.js';
 import { runInit } from '../commands/init.js';
+import { runLogin } from '../commands/login.js';
+import { runLogout } from '../commands/logout.js';
+import { runWhoami } from '../commands/whoami.js';
+import { runPublish } from '../commands/publish.js';
 
 // ============================================================================
 // Main Entry Point
@@ -89,6 +93,29 @@ async function main() {
         yes: args.yes,
         dryRun: args.dryRun,
         skipPrompts: args.skipPrompts,
+      });
+      break;
+
+    case 'login':
+      result = await runLogin({
+        email: args.email,
+        password: args.password,
+      });
+      break;
+
+    case 'logout':
+      result = await runLogout();
+      break;
+
+    case 'whoami':
+      result = await runWhoami();
+      break;
+
+    case 'publish':
+      result = await runPublish({
+        file: args.file,
+        notes: args.notes,
+        visibility: args.visibility,
       });
       break;
 
